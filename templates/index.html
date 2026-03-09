@@ -290,7 +290,7 @@
         <div id="mode-brain" class="mode-container">
             <div class="header">
                 BAYESIAN BRAIN
-                <div class="version-tag">MINIMALIST CORTEX v1.3</div>
+                <div class="version-tag">CORTEX v1.9 (STABLE)</div>
             </div>
             
             <div id="chat-log" class="chat-log">
@@ -365,6 +365,7 @@
                 }
                 
                 aiBubble.innerHTML = text; // Use innerHTML for the span
+                log.appendChild(aiBubble);
                 log.scrollTop = log.scrollHeight;
 
                 // Update prior fill

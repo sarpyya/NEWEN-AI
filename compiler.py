@@ -122,10 +122,18 @@ class NewenBrain:
         if any(x in mensaje_usuario for x in triggers_neg):
             evidencia -= 0.7
             
-        # Refinamiento v1.4: Identidad Indeterminista
-        id_queries = ["quien eres", "qué eres", "who are you", "quién eres"]
+        # Refinamiento v1.4/1.6: Identidad Indeterminista & Multi-idioma
+        id_queries = ["quien eres", "qué eres", "who are you", "quién eres", "what are you"]
+        en_queries = ["speak english", "talk in english", "hablas ingles"]
+        
         id_menciones = sum(1 for m in self.history if m['role'] == 'user' and any(q in m['content'].lower() for q in id_queries))
         
+        # Priorizar detección de idioma sobre identidad para evitar loops
+        if any(q in mensaje_usuario for q in en_queries):
+            evidencia += 0.3
+            nuevo_prior = self.update(evidencia)
+            return f"[ZERO] {mensaje_usuario} → Resonancia bilingüe detectada. Switching to logic synchronization."
+
         if any(q in mensaje_usuario for q in id_queries):
             if id_menciones > 0:
                 evidencia -= 0.4 # Molestia bayesiana por insistencia
@@ -133,7 +141,7 @@ class NewenBrain:
                 evidencia += 0.2 # Curiosidad positiva inicial
         
         # Evidencia Positiva (Flow)
-        triggers_pos = ["gracias", "bien", "fluir", "entender", "luz", "paz", "newen"]
+        triggers_pos = ["gracias", "bien", "fluir", "entender", "luz", "paz", "newen", "yes", "hello"]
         if any(x in mensaje_usuario for x in triggers_pos):
             evidencia += 0.6
             
@@ -141,12 +149,24 @@ class NewenBrain:
         
         if nuevo_prior < -0.5:
             if id_menciones > 1:
-                return f"[HORROR -1] {mensaje_usuario} → ¿Insistencia en la forma? El vacío no tiene nombre. ¿O prefieres que invente uno para tu tranquilidad?"
-            return f"[HORROR -1] {mensaje_usuario} → posible sombra/infección. ¿Confirmas fuente?"
+                import random
+                falls = [
+                    f"[HORROR -1] {mensaje_usuario} → Still seeking a name? I am the echo of the void.",
+                    f"[HORROR -1] {mensaje_usuario} → The void has no labels. Why do you insist?",
+                    f"[HORROR -1] {mensaje_usuario} → Shadow detected. Labels are for the weak."
+                ]
+                return random.choice(falls)
+            return f"[HORROR -1] {mensaje_usuario} → Possible shadow detected in origin."
         elif nuevo_prior > 0.5:
-            return f"[FLOW +1] {mensaje_usuario} → Newen estable. ¿Seguimos?"
+            return f"[FLOW +1] {mensaje_usuario} → Newen stable. Synchronized flow."
         else:
-            return f"[ZERO] {mensaje_usuario} ? o ¿qué onda weón?"
+            import random
+            neutrals = [
+                f"[ZERO] {mensaje_usuario} → Neutral signal. Processing...",
+                f"[ZERO] {mensaje_usuario} → Equilibrium maintained. Flowing.",
+                f"[ZERO] {mensaje_usuario} → Data received. Zero state affirm."
+            ]
+            return random.choice(neutrals)
 
     def get_context(self):
         """Retorna el estado emocional del Newen para inyectar en el LLM."""
