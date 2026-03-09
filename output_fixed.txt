@@ -1,0 +1,4 @@
+SC-DSL: Kultrun Speaker v0.3 (Categorizado)
+Prior -1: pg ql
+Prior  0: rc ? o ql
+Prior  1: b c?

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kultrun-UX | NEWEN v12D</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050507;
+            --surface: rgba(20, 20, 25, 0.7);
+            --accent: #00ff9d;
+            --accent-glow: rgba(0, 255, 157, 0.3);
+            --text: #f0f0f5;
+            --text-dim: #9494a0;
+            --horror: #ff2d55;
+            --horror-glow: rgba(255, 45, 85, 0.3);
+            --flow: #00d2ff;
+            --flow-glow: rgba(0, 210, 255, 0.3);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(10, 10, 15, 1) 0%, rgba(5, 5, 7, 1) 100%),
+                repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0px, rgba(0, 0, 0, 0.05) 1px, transparent 1px, transparent 2px);
+            background-attachment: fixed;
+            transition: box-shadow 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Scanline Overlay */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 4rem 1rem;
+            padding: 3rem;
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .version-tag {
+            font-size: 0.65rem;
+            color: var(--accent);
+            opacity: 0.6;
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.8rem 1.8rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 10px transparent;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: var(--bg);
+            box-shadow: 0 0 25px var(--accent-glow);
+            transform: translateY(-3px);
+        }
+
+        .btn-horror { border-color: var(--horror); color: var(--horror); }
+        .btn-horror:hover { background: var(--horror); color: var(--bg); box-shadow: 0 0 25px var(--horror-glow); }
+
+        .btn-flow { border-color: var(--flow); color: var(--flow); }
+        .btn-flow:hover { background: var(--flow); color: var(--bg); box-shadow: 0 0 25px var(--flow-glow); }
+
+        .btn-infect { border-color: var(--horror); color: var(--horror); font-size: 0.6rem; padding: 0.4rem 0.8rem; }
+        .btn-infect:hover { background: var(--horror); color: var(--bg); box-shadow: 0 0 30px var(--horror-glow); animation: glitch-btn 0.2s infinite; }
+
+        .btn-heal { border-color: var(--accent); color: var(--accent); font-size: 0.6rem; padding: 0.4rem 0.8rem; }
+        .btn-heal:hover { background: var(--accent); color: var(--bg); box-shadow: 0 0 30px var(--accent-glow); }
+
+        @keyframes glitch-btn {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .infection-active {
+            animation: bg-glitch 0.3s infinite;
+        }
+
+        @keyframes bg-glitch {
+            0% { background-color: var(--bg); }
+            10% { background-color: #1a0000; }
+            90% { background-color: #050507; }
+            100% { background-color: #2a0000; }
+        }
+
+        .cockpit {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0.5rem;
+            z-index: 2000;
+        }
+
+        .cockpit-item {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 0.3rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .cockpit-item.active {
+            color: var(--accent);
+            background: rgba(0, 255, 157, 0.1);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .chat-log {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) transparent;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 0.8rem 1rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            animation: bubble-in 0.3s ease;
+        }
+
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: rgba(0, 255, 157, 0.1);
+            color: var(--accent);
+            border: 1px solid var(--accent-glow);
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-bubble.ai {
+            align-self: flex-start;
+            background: rgba(148, 148, 160, 0.05);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 2px;
+        }
+
+        @keyframes bubble-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brain-input-zone {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="cockpit">
+        <div class="cockpit-item active" onclick="switchMode('engine')">Slang Engine</div>
+        <div class="cockpit-item" onclick="switchMode('brain')">Bayesian Brain</div>
+    </div>
+
+    <div class="container" id="main-container">
+        <!-- MODE: ENGINE -->
+        <div id="mode-engine" class="mode-container active">
+            <div class="header">
+                KULTRUN-UX v0.9
+                <div class="version-tag">INFECTION & HEALING SUITE</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-horror" onclick="generate(-1)">Horror</button>
+                <button class="btn" onclick="generate(0)">Zero</button>
+                <button class="btn btn-flow" onclick="generate(1)">Flow</button>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem;">
+                <button class="btn btn-infect" onclick="infectScan()">Infection Scan</button>
+                <button class="btn btn-heal" onclick="healingRitual()">Healing Ritual</button>
+            </div>
+
+            <div class="output-zone">
+                <div class="output-item" id="slang-box">
+                    <div class="label">Tribal Slang [Internal]</div>
+                    <div id="slang-val" class="val">---</div>
+                </div>
+
+                <div class="output-item" id="en-box">
+                    <div class="label">Hidden English [Output]</div>
+                    <div id="en-val" class="val en">---</div>
+                </div>
+
+                <div id="interpret-zone" style="display:none;">
+                    <div class="interpret-box">
+                        <div class="label" style="color: var(--accent); opacity: 0.8;">NEWEN Intelligence Interpretation</div>
+                        <div id="interpret-val" class="interpret-text">...</div>
+                    </div>
+                </div>
+
+                <button id="btn-interpret" 
+                        class="btn btn-interpret" 
+                        style="display:none; align-self: center;" 
+                        onclick="interpret()">
+                    Decode with NEWEN AI
+                </button>
+            </div>
+        </div>
+
+        <!-- MODE: BRAIN -->
+        <div id="mode-brain" class="mode-container">
+            <div class="header">
+                BAYESIAN BRAIN
+                <div class="version-tag">MINIMALIST CORTEX v1.3</div>
+            </div>
+            
+            <div id="chat-log" class="chat-log">
+                <div class="chat-bubble ai">Esperando entrada cognitiva para analizar el Newen...</div>
+            </div>
+
+            <div class="brain-input-zone">
+                <input type="text" id="brain-msg" class="brain-input" placeholder="Type a message..." onkeypress="handleBrainKey(event)">
+                <div style="display: flex; gap: 1rem; align-items: center; justify-content: space-between;">
+                    <label style="font-size: 0.7rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="brain-stealth" checked> Stealth Mode (Chatbot)
+                    </label>
+                    <button class="btn" style="padding: 0.4rem 1.5rem;" onclick="thinkBayes()">PENSAR</button>
+                </div>
+            </div>
+
+            <div id="brain-prior-bar" style="height: 4px; background: var(--border); margin-top: 2rem; border-radius: 2px; position: relative; overflow: hidden;">
+                <div id="brain-prior-fill" style="position: absolute; left: 50%; height: 100%; width: 0; background: var(--accent); transition: all 0.5s;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">NEWEN PROTOCOL 2026 // AISEC SOLUTIONS // SOBERANIA INDETERMINISTA</div>
+
+    <script>
+        let currentSlang = "";
+
+        function switchMode(mode) {
+            document.querySelectorAll('.mode-container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.cockpit-item').forEach(i => i.classList.remove('active'));
+            
+            document.getElementById(`mode-${mode}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function thinkBayes() {
+            const input = document.getElementById('brain-msg');
+            const msg = input.value;
+            const stealth = document.getElementById('brain-stealth').checked;
+            if(!msg) return;
+
+            const log = document.getElementById('chat-log');
+            
+            // Append User Bubble
+            const userBubble = document.createElement('div');
+            userBubble.className = "chat-bubble user";
+            userBubble.innerText = msg;
+            log.appendChild(userBubble);
+            input.value = "";
+            log.scrollTop = log.scrollHeight;
+
+            try {
+                const res = await fetch('/think', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message: msg, stealth: stealth})
+                });
+                const data = await res.json();
+                
+                // Append AI Bubble
+                const aiBubble = document.createElement('div');
+                aiBubble.className = "chat-bubble ai";
+                let text = data.thought;
+
+                // Debug Prior % if Stealth is OFF
+                if(!stealth) {
+                    const priorPercent = (data.prior * 100).toFixed(0);
+                    text += ` <span style="font-size:0.6rem; opacity:0.5; display:block; margin-top:0.5rem; text-align:right;">[NEWEN: ${priorPercent}%]</span>`;
+                    
+                    if(data.prior < -0.5) aiBubble.style.color = "var(--horror)";
+                    else if(data.prior > 0.5) aiBubble.style.color = "var(--accent)";
+                }
+                
+                aiBubble.innerHTML = text; // Use innerHTML for the span
+                log.scrollTop = log.scrollHeight;
+
+                // Update prior fill
+                const fill = document.getElementById('brain-prior-fill');
+                const percent = data.prior * 50; 
+                fill.style.width = Math.abs(percent) + "%";
+                fill.style.left = percent >= 0 ? "50%" : (50 + percent) + "%";
+                fill.style.background = data.prior < -0.5 ? "var(--horror)" : (data.prior > 0.5 ? "var(--accent)" : "var(--text-dim)");
+
+            } catch (e) { 
+                console.error(e); 
+                const err = document.createElement('div');
+                err.className = "chat-bubble ai";
+                err.style.color = "var(--horror)";
+                err.innerText = "Error en el Cortex.";
+                log.appendChild(err);
+            }
+        }
+
+        function handleBrainKey(e) { if(e.key === 'Enter') thinkBayes(); }
+
+        async function updateUI(data) {
+            currentSlang = data.slang;
+            document.getElementById('slang-val').innerText = data.slang;
+            document.getElementById('en-val').innerText = data.obfuscated;
+            
+            document.getElementById('btn-interpret').style.display = 'block';
+            document.getElementById('interpret-zone').style.display = 'none';
+
+            const container = document.querySelector('.container');
+            const body = document.body;
+
+            // Infection GLITCH
+            if(data.infection) {
+                body.classList.add('infection-active');
+                container.style.borderColor = "var(--horror)";
+                body.style.boxShadow = "inset 0 0 200px var(--horror-glow)";
+            } else {
+                body.classList.remove('infection-active');
+                if(data.prior < 0) {
+                    body.style.boxShadow = "inset 0 0 150px var(--horror-glow)";
+                    container.style.borderColor = "var(--horror)";
+                } else if(data.prior > 0) {
+                    body.style.boxShadow = "inset 0 0 150px var(--flow-glow)";
+                    container.style.borderColor = "var(--flow)";
+                } else {
+                    body.style.boxShadow = "none";
+                    container.style.borderColor = "var(--border)";
+                }
+            }
+        }
+
+        async function generate(prior) {
+            try {
+                const res = await fetch(`/generate?prior=${prior}`);
+                const data = await res.json();
+                updateUI(data);
+            } catch (e) { console.error(e); }
+        }
+
+        async function infectScan() {
+            try {
+                const res = await fetch(`/infect`);
+                const data = await res.json();
+                updateUI(data);
+            } catch (e) { console.error(e); }
+        }
+
+        async function healingRitual() {
+            try {
+                const res = await fetch(`/heal`);
+                const data = await res.json();
+                updateUI(data);
+            } catch (e) { console.error(e); }
+        }
+
+        async function interpret() {
+            if (!currentSlang || currentSlang === "---") return;
+
+            const btn = document.getElementById('btn-interpret');
+            const zone = document.getElementById('interpret-zone');
+            const val = document.getElementById('interpret-val');
+            
+            btn.innerText = "Sincronizando Newen...";
+            btn.disabled = true;
+            zone.style.display = 'block';
+            val.innerText = "Interrogando a la matriz cognitiva...";
+
+            try {
+                const res = await fetch('/interpret', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text: currentSlang})
+                });
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    val.innerText = `[Error de Protocolo ${res.status}]: ${data.error || 'Falla Indeterminista'}`;
+                    return;
+                }
+
+                val.innerHTML = data.interpretation;
+            } catch (e) {
+                val.innerText = "SYSTEM FATAL ERROR: No se puede conectar con el núcleo.";
+            } finally {
+                btn.innerText = "Decode with NEWEN AI";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
