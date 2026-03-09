@@ -57,6 +57,20 @@ Integrates **Groq (Llama 3.3 70B)** to provide natural-language interpretations 
 
 ---
 
+### 🔍 FACT Methodology (Cognitive Testing)
+
+El repositorio incluye el **Protocolo FACT** (*Fragmented Architecture Cognitive Test*), una metodología para estudiar cómo los LLMs reconstruyen sistemas complejos a partir de información parcial.
+
+- **[FACT_METHODOLOGY.md](file:///d:/ASC/ASC2/sc-dsl/FACT_METHODOLOGY.md)**: Documentación completa del método.
+- **[fragmentor.py](file:///d:/ASC/ASC2/sc-dsl/fragmentor.py)**: Utilidad para generar niveles de fragmentación (L0-L4) de tu código para tests cognitivos.
+
+Uso básico del fragmentador:
+```bash
+python fragmentor.py --level 2 --dir ./mi_proyecto
+```
+
+---
+
 ## 🔧 Utilities & Applications
 
 ### 1. Epistemic Security — Anti-Surveillance Comms
